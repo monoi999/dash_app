@@ -1,8 +1,8 @@
-# [4-1]
 
 from dash import Dash, html
 
 app = Dash(__name__)
+server = app.server
 
 app.layout = html.Div(children=[
     html.Div(children='Exam Div'),
@@ -14,4 +14,4 @@ app.layout = html.Div(children=[
 ])
 
 if __name__ == '__main__':
-    app.run_server(debug=True, port=port) 
+    app.run_server(debug=True) 
