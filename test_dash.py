@@ -11,7 +11,7 @@ continentList = df['continent'].unique()
 marks = { str(year):str(year) for year in yearList }
 
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, dbc_css])
-server = app.server
+
 
 app.layout = html.Div([
     dcc.Dropdown(options=continentList, id='continent'),
