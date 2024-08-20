@@ -1,32 +1,34 @@
-# [4-1]
 
-dbc_css = "https://cdn.jsdelivr.net/gh/AnnMarieW/dash-bootstrap-templates/dbc.min.css"
 from dash import Dash, html, dcc, callback, Input, Output, State
-import dash_bootstrap_components as dbc
 import plotly.express as px
-df = px.data.gapminder()
 
-yearList = df['year'].sort_values().unique()
-continentList = df['continent'].unique()
-marks = { str(year):str(year) for year in yearList }
+app = Dash(__name__)
 
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, dbc_css])
+df = px.data.stocks(indexed=True)
+fig = px.line(df, y='GOOG')
+d = {'GOOG':'구글', 'AAPL':'애플', 'AMZN':'아마존', 'MSFT':'마소', 'FB':'페북', 'NFLX':'넷플릭스'}
 
-
-app.layout = html.Div([
-    dcc.Dropdown(options=continentList, id='continent'),
-    dcc.Slider(yearList[0], yearList[-1], step=None, marks=marks, id='year'),
-    html.Hr(),
-    html.Div(id='result')
-], className='dbc w-25 d-grid gap-2 m-2 w-25 h5')
-
-@callback(Output('result','children'),
-          Input('continent','value'), Input('year','value'))
-def func(continent, year):
-    print(continent, year)
-    if continent and year :
-        popSum = df.query('continent==@continent and year==@year')['pop'].sum()
-        return f'Total {continent} Population in {year} => {popSum}'
+app.layout = html.Div(children=[ 
+    html.H1(children='Stocks Data'),
+    dcc.Dropdown(
+        id='company',
+        options=[{'label':d[x], 'value':x} for x in df.columns],
+        value=df.columns[0], style={'width':'150px'}
+    ),
+    dcc.Graph(id='graph', figure=fig),  
+    dash_table.DataTable(
+        id='df_sotcks',
+        columns = [{'name':'date','id':'date'}] + [{"name": i, "id": i} for i in df.columns],
+        data=df.reset_index().head(5).to_dict('records'), 
+    )
+])
+@app.callback(Output("graph", "figure"), Input("company", "value"))
+def display(company):
+    fig = px.line(df, y=company)
+    return fig
 
 if __name__ == '__main__':
     app.run_server(debug=True)
+    
+
+    
